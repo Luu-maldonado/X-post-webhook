@@ -40,17 +40,23 @@ app.post('/tweet', upload.single('media'), async (req, res) => {
     }
 
     // Leer la imagen como binario
-    const mediaData = fs.readFileSync(mediaPath);
+    const FormData = require('form-data');
 
     // 1. Subir imagen a Twitter
     const mediaUploadUrl = 'https://upload.twitter.com/1.1/media/upload.json';
-    const authHeaderUpload = oauth.toHeader(oauth.authorize({ url: mediaUploadUrl, method: 'POST' }, token));
 
-    const mediaResponse = await axios.post(mediaUploadUrl, mediaData, {
+    const form = new FormData();
+    form.append('media', fs.createReadStream(mediaPath));
+
+    const authHeaderUpload = oauth.toHeader(oauth.authorize({ 
+        url: mediaUploadUrl, 
+        method: 'POST' 
+    }, token));
+
+    const mediaResponse = await axios.post(mediaUploadUrl, form, {
       headers: {
         ...authHeaderUpload,
-        'Content-Type': 'application/octet-stream',
-        'Content-Length': mediaData.length
+        ...form.getHeaders()
       },
     });
 
