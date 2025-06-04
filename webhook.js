@@ -52,9 +52,6 @@ app.post('/tweet', upload.single('media'), async (req, res) => {
         'Content-Type': 'application/octet-stream',
         'Content-Length': mediaData.length
       },
-      params: {
-        media_category: 'tweet_image'
-      }
     });
 
     const media_id = mediaResponse.data.media_id_string;
