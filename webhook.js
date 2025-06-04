@@ -13,8 +13,8 @@ const upload = multer({ dest: 'uploads/' });
 // 🔐 Tus claves de desarrollador de Twitter
 const oauth = OAuth({
   consumer: {
-    key: '1VgvFF2hMltMSMYlxkH7Y1urj',
-    secret: 'XvgoObnEjQyiVt831fv3puUprxjOb792fyLvqvut0mceSw3w04'
+    key: 'prYr7cGZjgIT4MDHlKgUsXGFl',
+    secret: '50lQ9fyuSGOZxwP2UURWWIw600Cxz3pPAIrYJmndS2s5rqwjLq'
   },
   signature_method: 'HMAC-SHA1',
   hash_function(base_string, key) {
@@ -23,8 +23,8 @@ const oauth = OAuth({
 });
 
 const token = {
-  key: '1716230471598678016-hvhe9oYimDSRPnzMMbmov3oAEchd3o',
-  secret: 'RHnXY8k22W6SX5RowTKVDx4TGdqyjVRK00EqUJBJlJvgb'
+  key: '1716230471598678016-FDwFFATn14KimSlQyQm8eQm70sxSjV',
+  secret: 'LOLCPkZodpwRgVvUFAO3WrWmDNXsSx4fRija5jfRGfQ3F'
 };
 
 app.post('/tweet', upload.single('media'), async (req, res) => {
