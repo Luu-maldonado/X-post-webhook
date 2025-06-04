@@ -35,6 +35,11 @@ app.post('/tweet', upload.single('media'), async (req, res) => {
 
     console.log('BODY:', req.body);
     console.log('FILE:', req.file);
+    console.log('USANDO CLAVES:', {
+        consumer_key: oauth.consumer.key,
+        access_token: token.key
+    });
+
 
     let media_id = null;
 
