@@ -32,6 +32,13 @@ app.post('/tweet', upload.single('media'), async (req, res) => {
     const text = req.body.text;
     const mediaPath = req.file.path;
 
+    console.log('BODY:', req.body);
+    console.log('FILE:', req.file);
+
+    if (!mediaPath) {
+      throw new Error('No se recibió archivo en el campo "media"');
+    }
+
     // Leer la imagen como binario
     const mediaData = fs.readFileSync(mediaPath);
 
