@@ -35,54 +35,56 @@ app.post('/tweet', upload.single('media'), async (req, res) => {
     console.log('BODY:', req.body);
     console.log('FILE:', req.file);
 
-    if (!mediaPath) {
-      throw new Error('No se recibió archivo en el campo "media"');
-    }
+    let media_id = null;
 
-    // Leer la imagen como binario
-    const FormData = require('form-data');
+     if (mediaPath) {
+      // Crear el cuerpo form-data con el archivo
+      const form = new FormData();
+      form.append('media', fs.createReadStream(mediaPath));
 
-    // 1. Subir imagen a Twitter
-    const mediaUploadUrl = 'https://upload.twitter.com/1.1/media/upload.json';
+      const mediaUploadUrl = 'https://upload.twitter.com/1.1/media/upload.json';
 
-    const form = new FormData();
-    form.append('media', fs.createReadStream(mediaPath));
+      const authHeaderUpload = oauth.toHeader(oauth.authorize({
+        url: mediaUploadUrl,
+        method: 'POST'
+      }, token));
 
-    const authHeaderUpload = oauth.toHeader(oauth.authorize({ 
-        url: mediaUploadUrl, 
-        method: 'POST' 
-    }, token));
-
-    const mediaResponse = await axios.post(mediaUploadUrl, form, {
-      headers: {
+      const headers = {
         ...authHeaderUpload,
         ...form.getHeaders()
-      },
-    });
+      };
 
-    const media_id = mediaResponse.data.media_id_string;
+      const mediaResponse = await axios.post(mediaUploadUrl, form, { headers });
+      media_id = mediaResponse.data.media_id_string;
+    }
 
-    // 2. Postear el tweet
+    // Postear el tweet (con o sin media)
     const tweetUrl = 'https://api.twitter.com/1.1/statuses/update.json';
     const authHeaderTweet = oauth.toHeader(oauth.authorize({ url: tweetUrl, method: 'POST' }, token));
+
+    const params = {
+      status: text
+    };
+    if (media_id) {
+      params.media_ids = media_id;
+    }
 
     const tweetResponse = await axios.post(tweetUrl, null, {
       headers: {
         ...authHeaderTweet,
         'Content-Type': 'application/x-www-form-urlencoded'
       },
-      params: {
-        status: text,
-        media_ids: media_id
-      }
+      params
     });
 
     res.json({ success: true, tweet: tweetResponse.data });
   } catch (error) {
-    console.error(error.response?.data || error.message);
+    console.error('ERROR AL POSTEAR:', error.response?.data || error.message);
     res.status(500).json({ success: false, error: error.message });
   } finally {
-    fs.unlinkSync(req.file.path); // borrar el archivo temporal
+    if (req.file?.path) {
+      fs.unlinkSync(req.file.path);
+    }
   }
 });
 
